@@ -67,22 +67,24 @@ To list all the available commands available, you can run the following SQL comm
 
 ```
 SELECT [procedure], tablename FROM BusinessCentral._handlers WHERE groups='API' AND flags like '%isselectsupported%'
-
-/*
--- first 10 records returned:
-getAccount	                               Account
-getAgedAccountsPayable	                   AgedAccountsPayable
-getAgedAccountsReceivable	                AgedAccountsReceivable
-getAttachments	                            Attachments
-getAttachmentsForJournalLine	             AttachmentsForJournalLine
-getAttachmentsForJournalLineForJournal	    AttachmentsForJournalLineForJournal
-getBalanceSheet	                         BalanceSheet
-getBankAccount	                            BankAccount
-getCashFlowStatement	                      CashFlowStatement
-getCompany	                               Company
-...
-*/
 ```
+
+Here is a sample output of the first 10 records:
+
+| procedure | tableName |
+|---|---|
+| getAccount | Account |
+| getAgedAccountsPayable | AgedAccountsPayable |
+| getAgedAccountsReceivable | AgedAccountsReceivable |
+| getAttachments | Attachments |
+| getAttachmentsForJournalLine | AttachmentsForJournalLine |
+| getAttachmentsForJournalLineForJournal | AttachmentsForJournalLineForJournal |
+| getBalanceSheet | BalanceSheet |
+| getBankAccount | BankAccount |
+| getCashFlowStatement | CashFlowStatement |
+| getCompany | Company |
+|---|---|
+*/
 
 The above statement shows you that you can retrieve records from BusinessCentral using either an EXEC command using the __produce__ name, or a SELECT statement on the __tablename__ table.  Most __tablename__ tables allow the INSERT, UPDATE and DELETE operations but not all. 
 
