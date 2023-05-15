@@ -5,6 +5,8 @@ This repo provides an overview of Enzo Server integration capabilities with Busi
 # Overview
 Enzo Server provides deep integration capabilities with BusinessCentral's APIs to enable rapid Business Process Automation and data discovery use cases.  Enzo hides the low-level OAuth 2.0 authentication complexity, automatically generates and stores Bearer Tokens securely, and refreshes the Bearer Tokens as needed automatically. 
 
+Enzo Server provides direct connectivity to BusinessCentral using native SQL commands to read/write data quickly. Using SQL commands allows integration teams to quickly build otherwise complex business process automation logic and enables data discovery scenarios. SQL Server Management Studio (SSMS) is the recommended tool to execute SQL commands against Enzo by either connecting directly to Enzo or using a Linked Server to Enzo. Since Enzo Server is a SQL Server emulator, you can connect to it directly. Enzo implements a subset of the T-SQL language necessary to access the API of the remote system; complex SQL operations (such as JOIN or GROUP BY) are not supported. 
+
 # Configuration
 ## Pre-Requisites
 In order to run the sample code provided in this document, you will need to have an Enzo Server running on a Virtual Machine (Windows Server or Windows 10 or higher). You can quickly obtain a test Enzo Server Virtual Machine in AWS or Azure by using the __Enzo Server 3.1 Marketplace__ offer. For more information, please visit the [Enzo Download](https://www.enzounified.com/home/download) page on the [Enzo Unified](https://www.enzounified.com/) website. 
@@ -58,13 +60,61 @@ EXEC BSC.BusinessCentral._configCreate
 'CRONUS USA, Inc.'   -- CORNUS Company name 
 ```
 
-## Enzo Server
-Enzo Server provides direct connectivity to BusinessCentral using native SQL commands to read/write data quickly. Using SQL commands allows integration teams to quickly build otherwise complex business process automation logic and enables data discovery scenarios. Use SQL Server Management Studio (SSMS) to execute SQL commands against Enzo by either connecting directly to Enzo or use a Linked Server. Since Enzo Server is a SQL Server emulator, you can connect to it directly. Note that Enzo implements a subset of the T-SQL language just necessary to access the API of the remote system; as a result, you can only perform simple SQL operations (for example, you cannot use the JOIN or GROUP BY operators against Enzo). 
-
-### Reading from BusinessCentral
+# Reading from BusinessCentral
 All BusinessCentral API endpoints that allow you to read data are exposed through EXEC and SELECT commands. 
 
-The following SELECT command in SQL Server Management Studio returns all Vendors from BusinessCentral:
+To list all the available commands available, you can run the following SQL command on Enzo:
+
+```
+SELECT [procedure], tablename FROM BusinessCentral._handlers WHERE groups='API' AND flags like '%isselectsupported%'
+
+/*
+-- first 10 records returned:
+getAccount	                               Account
+getAgedAccountsPayable	                   AgedAccountsPayable
+getAgedAccountsReceivable	                AgedAccountsReceivable
+getAttachments	                            Attachments
+getAttachmentsForJournalLine	             AttachmentsForJournalLine
+getAttachmentsForJournalLineForJournal	    AttachmentsForJournalLineForJournal
+getBalanceSheet	                         BalanceSheet
+getBankAccount	                            BankAccount
+getCashFlowStatement	                      CashFlowStatement
+getCompany	                               Company
+...
+*/
+```
+
+The above statement shows you that you can retrieve records from BusinessCentral using either an EXEC command using the __produce__ name, or a SELECT statement on the __tablename__ table.  Most __tablename__ tables allow the INSERT, UPDATE and DELETE operations but not all. 
+
+## Using EXEC commands
+You can fetch data from the BusinessCentral API using EXEC commands. 
+
+```
+-- retrieve all vendors from BusinessCentral
+EXEC BusinessCentral.listVendors 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f'
+```
+
+The EXEC operator offers a few optional parameters. To view the list of parameters of the EXEC command, run this SQL:
+
+```
+EXEC BusinessCentral.listVendors help
+```
+
+For example, the __top__ parameter allows you to return the first few records:
+
+```
+-- retrieve 10 vendors from BusinessCentral
+EXEC BusinessCentral.listVendors 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f', 10
+```
+
+You can also use the parameter name:
+```
+-- retrieve 10 vendors from BusinessCentral
+EXEC BusinessCentral.listVendors @company_id='dc50d5e8-f9c9-ed11-94cc-000d3a220b2f', @top=10
+```
+
+## Using SELECT commands
+The following SELECT command in SQL Server Management Studio returns all Vendors from BusinessCentral (replace company_id with your BusinessCentral Company ID):
 
 ```
 SELECT * FROM BusinessCentral.Vendors WHERE company_id='dc50d5e8-f9c9-ed11-94cc-000d3a220b2f'
@@ -76,15 +126,10 @@ To access vendors directly from SQL Server (from a trigger or stored procedure f
 SELECT * FROM ENZO.BSC.BusinessCentral.Vendors WHERE company_id='dc50d5e8-f9c9-ed11-94cc-000d3a220b2f'
 ```
 
+# Writing to BusinessCentral
+
+## Using EXEC commands
+
+## Using INSERT, UPDATE, or DELETE operations
 
 
-
-## Enzo Integration Use Cases
-
-## DataZen Use Cases
-
-# Lab
-
-## Enzo Integration Lab
-
-## DataZen Lab
