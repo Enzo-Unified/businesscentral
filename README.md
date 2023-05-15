@@ -124,22 +124,88 @@ EXEC BusinessCentral.listVendors @company_id='dc50d5e8-f9c9-ed11-94cc-000d3a220b
 ```
 
 ## Using SELECT commands
-The following SELECT command in SQL Server Management Studio returns all Vendors from BusinessCentral (replace company_id with your BusinessCentral Company ID):
+Generally speaking, using SELECT commands is more flexible than using EXEC operators because you can apply client-side filters on the data, select the desired column names, and perform ORDER BY operations (the ORDER BY is applied client-side). The following SELECT command in SQL Server Management Studio returns all Vendors from BusinessCentral (replace company_id with your BusinessCentral Company ID):
 
 ```
 SELECT * FROM BusinessCentral.Vendors WHERE company_id='dc50d5e8-f9c9-ed11-94cc-000d3a220b2f'
 ```
 
-To access vendors directly from SQL Server (from a trigger or stored procedure for example), you will need to include the Linked Server (called ENZO below) and Database name (BSC) to the previous command:
+To retrieve the first 10 records, use the TOP operator:
 
 ```
-SELECT * FROM ENZO.BSC.BusinessCentral.Vendors WHERE company_id='dc50d5e8-f9c9-ed11-94cc-000d3a220b2f'
+SELECT TOP 10 * FROM BusinessCentral.Vendors WHERE company_id='dc50d5e8-f9c9-ed11-94cc-000d3a220b2f'
+```
+
+To apply secondary filters (client-side) the filters __must be added after the parameters of the SQL command__. For example, the __listVendors__ command (__Vendors__ table) accepts the following parameters, so if you use them they must be listed immediately after the WHERE clause (the company_id is a required parameter): 
+
+* company_id
+* top
+* skip
+* limit
+* filter
+* expand
+* select
+
+To return all records that contain an 'n' character in their displayName field, the following command will work because the client-side filter on the displayName field is last in the WHERE clause:
+
+```
+SELECT * FROM ENZO.BSC.BusinessCentral.Vendors WHERE company_Id = 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f' AND displayName like '%n%'
 ```
 
 # Writing to BusinessCentral
+You can perform inserts, updates, and delete operations using either an EXEC command or its equivalent INSERT, UPDATE or DELETE operation. 
 
 ## Using EXEC commands
+EXEC operations come in two flavors for BusinessCentral: specifying individual parameters or by providing a raw JSON document. 
 
-## Using INSERT, UPDATE, or DELETE operations
+### Using individual parameters
+For example, the PostVendor command takes 18 parameters, most of which are optional, such as the vendor __number__ and the __displayName__. To view the list of parameters available, run this command:
 
+```
+EXEC BusinessCentral.PostVendor help
+```
 
+Here is a sample SQL command to create a new Vendor by passing individual values:
+
+```
+EXEC BusinessCentral.PostVendor 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f', null, 'V1001', 'test vendor'
+```
+
+### Using the RAW command
+Each Enzo command that allows updating/inserting data also provides a secondary command of the same name, with RAW appended to it. These additional commands allow you to pass a custom JSON payload instead of providing individual parameters. 
+
+To view the parameters of the PostVendorRAW command, use this command:
+
+```
+EXEC BusinessCentral.PostVendorRAW help
+```
+
+The PostVendorRAW command takes two parameters: the company_id, and the json payload. 
+
+```
+EXEC BusinessCentral.PostVendorRAW 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f', '{ "number": "V1002", "displayName": "test vendor 2" }'
+```
+
+## Using UPDATE Operations
+Most objects in BusinessCentral provide an HTTP PATCH (UPDATE) operation. The table name to use for the command is also provided as part of the help output. For example, the PatchVendor command's help output contains a __TableName__ column that would be used for the UPDATE operation. The table name is __vendor__. 
+
+```
+EXEC BusinessCentral.PatchVendor help
+```
+
+Updating data in BusinessCentral requires a valid __etag__ to avoid concurrency issues. The __etag__ value can be found by calling the vendor record. The following command returns the current __etag__ value for a given __vendor_id__:
+
+```
+SELECT [@odata.etag] FROM BusinessCentral.Vendor WHERE company_Id = 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f' AND vendor_id='625C8AFB-52F3-ED11-8848-000D3A373307'
+```
+
+The UPDATE operation on the __vendor__ table requires the __company_id__, the __vendor_id__, the __etag__, and the __SET__ section that updates specific fields: 
+
+```
+UPDATE BusinessCentral.Vendor 
+SET email='test@enzounified.com' 
+WHERE 
+  company_Id = 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f' 
+  AND vendor_id='625C8AFB-52F3-ED11-8848-000D3A373307' 
+  AND [@odata.etag]='W/"JzIwOzE3NDc5MTgwODIxNjI2MjY0MzM0MTswMDsn"'
+```
