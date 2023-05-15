@@ -23,6 +23,9 @@ Enzo uses the following commands to create and update configuration settings res
 
 __\_configCreate__ and __\_configUpdate__
 
+<details>
+   <summary>Sample SQL command to create a configuration setting in Enzo</summary>
+
 For reference, the SQL command to create a new configuration setting is provided below:
 
 ```
@@ -60,6 +63,8 @@ EXEC BSC.BusinessCentral._configCreate
 'CRONUS USA, Inc.'   -- CORNUS Company name 
 ```
 
+</details>
+   
 # Reading from BusinessCentral
 All BusinessCentral API endpoints that allow you to read data are exposed through EXEC and SELECT commands. 
 
@@ -68,6 +73,9 @@ To list all the available commands available, you can run the following SQL comm
 ```
 SELECT [procedure], tablename FROM BusinessCentral._handlers WHERE groups='API' AND flags like '%isselectsupported%'
 ```
+
+<details>
+   <summary>Sample output (10 records)</summary>
 
 Here is a sample output of the first 10 records:
 
@@ -83,11 +91,11 @@ Here is a sample output of the first 10 records:
 | getBankAccount | BankAccount |
 | getCashFlowStatement | CashFlowStatement |
 | getCompany | Company |
-|---|---|
-*/
 
+</details>
+   
 The above statement shows you that you can retrieve records from BusinessCentral using either an EXEC command using the __produce__ name, or a SELECT statement on the __tablename__ table.  Most __tablename__ tables allow the INSERT, UPDATE and DELETE operations but not all. 
-
+   
 ## Using EXEC commands
 You can fetch data from the BusinessCentral API using EXEC commands. 
 
