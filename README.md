@@ -11,7 +11,7 @@ Enzo Server provides direct connectivity to BusinessCentral using native SQL com
 ## Direct vs. Linked Server Connections
 Enzo Server accepts connections from SSMS directly or through Linked Server. When creating integration scripts, such as jobs using the SQL Server Agent for example, or creating deep integrations within a database (as a Stored Procedure for example), connecting to Enzo through a Linked Server connection is necessary. Most operations can be performed either directly or through a Linked Server connection, but there are differences due to the way Linked Server works. 
 
-As a result, the following table outlines which operations are officially supported (note: in some cases, an unsupported operation may work, but it is not guaranteed to work in future releases):
+As a result, the following table outlines which operations are officially supported for the BusinessCentral adapter (note: in some cases, an unsupported operation may work, but it is not guaranteed to work in future releases):
 
 | Operation | Direct | Linked Server |
 |---|---|---|
@@ -20,6 +20,15 @@ As a result, the following table outlines which operations are officially suppor
 | INSERT | Supported | Not Supported |
 | UPDATE | Supported | Not Supported |
 | DELETE | Supported | Not Supported |
+
+Setting up a Linked Server to Enzo Server is simple but requires specific settings. Visit [the online documentation](https://www.enzounified.com/docs/linkedserver) for more information. 
+
+This documentation assumes that the name given to a Linked Server connection is __ENZO__. In addition, the database name __BSC__ must be added to the call:
+
+```
+-- return all available commands
+EXEC ENZO.BSC.BusinessCentral.help 0
+```
 
 # Configuration
 ## Pre-Requisites
