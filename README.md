@@ -71,7 +71,7 @@ All BusinessCentral API endpoints that allow you to read data are exposed throug
 To list all the available commands available, you can run the following SQL command on Enzo:
 
 ```
-SELECT [procedure], tablename FROM BusinessCentral._handlers WHERE groups='API' AND flags like '%isselectsupported%'
+SELECT [procedure], tablename FROM BusinessCentral._handlers WHERE groups='API' 
 ```
 
 <details>
@@ -123,6 +123,11 @@ You can also use the parameter name:
 EXEC BusinessCentral.listVendors @company_id='dc50d5e8-f9c9-ed11-94cc-000d3a220b2f', @top=10
 ```
 
+To run the same command through a Linked Server connection to Enzo:
+```
+EXEC ENZO.BSC.BusinessCentral.listVendors @company_id='dc50d5e8-f9c9-ed11-94cc-000d3a220b2f', @top=10
+```
+
 ## Using SELECT commands
 Generally speaking, using SELECT commands is more flexible than using EXEC operators because you can apply client-side filters on the data, select the desired column names, and perform ORDER BY operations (the ORDER BY is applied client-side). The following SELECT command in SQL Server Management Studio returns all Vendors from BusinessCentral (replace company_id with your BusinessCentral Company ID):
 
@@ -149,11 +154,18 @@ To apply secondary filters (client-side) the filters __must be added after the p
 To return all records that contain an 'n' character in their displayName field, the following command will work because the client-side filter on the displayName field is last in the WHERE clause:
 
 ```
+SELECT * FROM BusinessCentral.Vendors WHERE company_Id = 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f' AND displayName like '%n%'
+```
+
+You can run the same command through a Linked Server connection to Enzo:
+```
 SELECT * FROM ENZO.BSC.BusinessCentral.Vendors WHERE company_Id = 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f' AND displayName like '%n%'
 ```
 
 # Writing to BusinessCentral
 You can perform inserts, updates, and delete operations using either an EXEC command or its equivalent INSERT, UPDATE or DELETE operation. 
+
+> WARNING: The INSERT, UPDATE and DELETE operations are only supported when connecting directly to ENZO; it is recommended to use the EXEC operations to change data when using a Linked Server connection. 
 
 ## Using EXEC commands
 EXEC operations come in two flavors for BusinessCentral: specifying individual parameters or by providing a raw JSON document. 
@@ -171,6 +183,12 @@ Here is a sample SQL command to create a new Vendor by passing individual values
 EXEC BusinessCentral.PostVendor 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f', null, 'V1001', 'test vendor'
 ```
 
+The same command can be sent using a Linked Server connection to Enzo:
+
+```
+EXEC ENZO.BSC.BusinessCentral.PostVendor 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f', null, 'V1001', 'test vendor'
+```
+
 ### Using the RAW command
 Each Enzo command that allows updating/inserting data also provides a secondary command of the same name, with RAW appended to it. These additional commands allow you to pass a custom JSON payload instead of providing individual parameters. 
 
@@ -186,7 +204,13 @@ The PostVendorRAW command takes two parameters: the company_id, and the json pay
 EXEC BusinessCentral.PostVendorRAW 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f', '{ "number": "V1002", "displayName": "test vendor 2" }'
 ```
 
-## Using UPDATE Operations
+The same command can be sent using a Linked Server connection to Enzo:
+
+```
+EXEC ENZO.BSC.BusinessCentral.PostVendorRAW 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f', '{ "number": "V1002", "displayName": "test vendor 2" }'
+```
+
+## UPDATE Operations
 Most objects in BusinessCentral provide an HTTP PATCH (UPDATE) operation. The table name to use for the command is also provided as part of the help output. For example, the PatchVendor command's help output contains a __TableName__ column that would be used for the UPDATE operation. The table name is __vendor__. 
 
 ```
@@ -209,3 +233,36 @@ WHERE
   AND vendor_id='625C8AFB-52F3-ED11-8848-000D3A373307' 
   AND [@odata.etag]='W/"JzIwOzE3NDc5MTgwODIxNjI2MjY0MzM0MTswMDsn"'
 ```
+
+> The UPDATE operation may not work as expected using a Linked Server connection; if you are writing SQL code through a Linked Server connection, use the corresponding EXEC operation instead.
+
+## INSERT Operations
+Most objects in BusinessCentral provide an HTTP POST (INSERT) operation. The table name to use for the command is also provided as part of the help output. For example, the PatchVendor command's help output contains a __TableName__ column that would be used for the UPDATE operation. The table name is __vendor__. 
+
+```
+EXEC BusinessCentral.PatchVendor help
+```
+
+The INSERT operation on the __vendor__ table requires the __company_id__ and other values as desired: 
+
+```
+INSERT INTO BusinessCentral.Vendor (company_id, [number], displayName) VALUES ('dc50d5e8-f9c9-ed11-94cc-000d3a220b2f', 'V1003', 'test vendor 3')
+```
+
+> The INSERT operation may not work as expected using a Linked Server connection; if you are writing SQL code through a Linked Server connection, use the corresponding EXEC operation instead.
+
+## DELETE Operations
+Most objects in BusinessCentral provide an HTTP DELETE (DELETE) operation. The table name to use for the command is also provided as part of the help output. For example, the PatchVendor command's help output contains a __TableName__ column that would be used for the UPDATE operation. The table name is __vendor__. 
+
+```
+EXEC BusinessCentral.PatchVendor help
+```
+
+The INSERT operation on the __vendor__ table requires the __company_id__ and the __id__ of the vendor: 
+
+```
+DELETE FROM BusinessCentral.Vendor WHERE company_id='dc50d5e8-f9c9-ed11-94cc-000d3a220b2f' AND vendor_id='625C8AFB-52F3-ED11-8848-000D3A373307'
+```
+
+> The DELETE operation may not work as expected using a Linked Server connection; if you are writing SQL code through a Linked Server connection, use the corresponding EXEC operation instead.
+
