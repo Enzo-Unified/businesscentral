@@ -5,7 +5,21 @@ This repo provides an overview of Enzo Server integration capabilities with Busi
 # Overview
 Enzo Server provides deep integration capabilities with BusinessCentral's APIs to enable rapid Business Process Automation and data discovery use cases.  Enzo hides the low-level OAuth 2.0 authentication complexity, automatically generates and stores Bearer Tokens securely, and refreshes the Bearer Tokens as needed automatically. 
 
+## About Enzo Server
 Enzo Server provides direct connectivity to BusinessCentral using native SQL commands to read/write data quickly. Using SQL commands allows integration teams to quickly build otherwise complex business process automation logic and enables data discovery scenarios. SQL Server Management Studio (SSMS) is the recommended tool to execute SQL commands against Enzo by either connecting directly to Enzo or using a Linked Server to Enzo. Since Enzo Server is a SQL Server emulator, you can connect to it directly. Enzo implements a subset of the T-SQL language necessary to access the API of the remote system; complex SQL operations (such as JOIN or GROUP BY) are not supported. 
+
+## Direct vs. Linked Server Connections
+Enzo Server accepts connections from SSMS directly or through Linked Server. When creating integration scripts, such as jobs using the SQL Server Agent for example, or creating deep integrations within a database (as a Stored Procedure for example), connecting to Enzo through a Linked Server connection is necessary. Most operations can be performed either directly or through a Linked Server connection, but there are differences due to the way Linked Server works. 
+
+As a result, the following table outlines which operations are officially supported (note: in some cases, an unsupported operation may work, but it is not guaranteed to work in future releases):
+
+| Operation | Direct | Linked Server |
+|---|---|---|
+| EXEC | Supported | Supported |
+| SELECT | Supported | Supported |
+| INSERT | Supported | Not Supported |
+| UPDATE | Supported | Not Supported |
+| DELETE | Supported | Not Supported |
 
 # Configuration
 ## Pre-Requisites
