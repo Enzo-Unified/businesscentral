@@ -2,6 +2,8 @@
 
 This repo provides an overview of Enzo Server integration capabilities with BusinessCentral (online) and sample SQL code to read and write data.
 
+> NOTE: This project is under construction and should be considered in DRAFT mode. Feedback is welcome: info@enzounified.com 
+
 # Overview
 Enzo Server provides deep integration capabilities with BusinessCentral's APIs to enable rapid Business Process Automation and data discovery use cases.  Enzo hides the low-level OAuth 2.0 authentication complexity, automatically generates and stores Bearer Tokens securely, and refreshes the Bearer Tokens as needed automatically. 
 
