@@ -26,7 +26,10 @@ Setting up a Linked Server to Enzo Server is simple but requires specific settin
 This documentation assumes that the name given to a Linked Server connection is __ENZO__. In addition, the database name __BSC__ must be added to the call:
 
 ```
--- return all available commands
+-- return all available commands when connected to Enzo directly
+EXEC BusinessCentral.help 0
+
+-- return all available commands when connected through a Linked Server connection called ENZO
 EXEC ENZO.BSC.BusinessCentral.help 0
 ```
 
