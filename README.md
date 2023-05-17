@@ -1,14 +1,16 @@
 # BusinessCentral Data Integration
 
-This repo provides an overview of Enzo Server integration capabilities with BusinessCentral (online) and sample SQL code to read and write data.
+This repo provides an overview of Enzo Server integration capabilities with BusinessCentral (Microsoft 365) and sample SQL code to read and write data through the BusinessCentral API and ODataV4 endpoint (either provided by Microsoft or exposed by your AL logic). 
 
 > NOTE: This project is under construction and should be considered in DRAFT mode. Feedback is welcome: info@enzounified.com 
 
 # Overview
-Enzo Server provides deep integration capabilities with BusinessCentral's APIs to enable rapid Business Process Automation and data discovery use cases.  Enzo hides the low-level OAuth 2.0 authentication complexity, automatically generates and stores Bearer Tokens securely, and refreshes the Bearer Tokens as needed automatically. 
+Enzo Server provides deep integration capabilities with BusinessCentral's APIs and OData endpoints to enable rapid Business Process Automation and data discovery use cases.  
 
 ## About Enzo Server
 Enzo Server provides direct connectivity to BusinessCentral using native SQL commands to read/write data quickly. Using SQL commands allows integration teams to quickly build otherwise complex business process automation logic and enables data discovery scenarios. SQL Server Management Studio (SSMS) is the recommended tool to execute SQL commands against Enzo by either connecting directly to Enzo or using a Linked Server to Enzo. Since Enzo Server is a SQL Server emulator, you can connect to it directly. Enzo implements a subset of the T-SQL language necessary to access the API of the remote system; complex SQL operations (such as JOIN or GROUP BY) are not supported. 
+
+Enzo Server works by installing __adapters__, which abstract access to specific endpoints; the BusinessCentral adapter is designed to expose the BC API and ODataV4 endpoints as SQL commands, and can be extended and/or customized to your needs and custom BC endpoints.  In addition, Enzo hides the low-level OAuth 2.0 authentication complexity, automatically generates and stores Bearer Tokens securely, and refreshes the Bearer Tokens as needed, automatically. You can also create your OAuth token separately.
 
 ## Direct vs. Linked Server Connections
 Enzo Server accepts connections from SSMS directly or through Linked Server. When creating integration scripts, such as jobs using the SQL Server Agent for example, or creating deep integrations within a database (as a Stored Procedure for example), connecting to Enzo through a Linked Server connection is necessary. Most operations can be performed either directly or through a Linked Server connection, but there are differences due to the way Linked Server works. 
@@ -293,4 +295,75 @@ DELETE FROM BusinessCentral.Vendor WHERE company_id='dc50d5e8-f9c9-ed11-94cc-000
 ```
 
 > The DELETE operation may not work as expected using a Linked Server connection; if you are writing SQL code through a Linked Server connection, use the corresponding EXEC operation instead.
+
+# Making Direct Calls to API, ODataV4 and Custom AL Endpoints
+You can access the ODataV4 and custom AL endpoints using EXEC commands only in this release. The ODataV4 endpoints are exposed using a different URI than the BC APIs, and follow this pattern: https://api.businesscentral.dynamics.com/v2.0/TENANT_ID/ENVIRONMENT/ODataV4/Company('COMPANYNAME')/operation
+
+To access any ODataV4 or custom endpoint, use the __\_rawHttpRequest__ like this:
+
+```
+EXEC BusinessCentral._rawHttpRequest '{"method": "GET",
+    "uri": "https://api.businesscentral.dynamics.com/v2.0/TENANTID/Production/ODataV4/Company(''CRONUS USA, Inc.'')/Power_BI_Customer_List",
+	"applyContentTx": {
+      "rootPath": "value",
+      "sourceColumn": "0",
+      "rawColumn": "_raw"
+    }
+}'
+```
+
+The __\_rawHttpRequest__ operation takes an input JSON document that provides the necessary information to make an HTTP/S call using the saved BusinessCentral credentials:
+
+* The __method__ attribute represents the HTTP Verb
+* The __uri__ attribute is either the relative URI from the configuration or the full URI to the endpoint (ODataV4 requires the use of your Azure Tenant ID)
+* The __applyContentTx__ attribute is optional, and when set, transforms the HTTP Response into rows and columns automatically using the JSON Path provided
+
+When specifying a POST, PUT, or PATCH operation, the following addional attributes can be used:
+
+* __httpPayload__: the body of the operation as a string 
+* __httpContentType__: the content type in the body
+
+If headers need to be provided, the __headers__ attribute can be added; for example, the __If-Match__ header can be specified like this:
+```
+"headers": [
+				{
+					"Key": "If-Match",
+					"Value": "..........."
+				}
+			]
+```
+
+Here is a sample JSON Payload to send a PATCH request to the BC API using a relative URI. Note that COMPANY-ID, JOURNAL-ID, ETAG-VALUE, and JSON-BODY must be specified per the API or ODataV4 specification. 
+
+```
+{
+			"method": "PATCH",
+			"uri": "/companies(COMPANY-ID)/journalLines(JOURNAL-ID)",
+			"applyContentTx": null,
+			"headers": [
+				{
+					"Key": "If-Match",
+					"Value": "ETAG-VALUE"
+				}
+			],
+			"paging": null,
+			"httpPayload": "JSON-BODY",
+			"httpContentType": "application/json"
+		}
+```
+
+# Viewing and Changing Bearer Tokens
+When configured correctly, Enzo Server will automatically call the OAuth 2.0 endpoint to generate or refresh tokens. However, you can specify your own token too.
+
+To inspect the Bearer Token used by Enzo Server, run this command:
+
+```
+SELECT * FROM BusinessCentral._oauthTokens
+```
+
+You can also save your own token; a token must be saved to an existing configuration setting created previously. Assuming the name of the configuration setting is __cronus__, the following SQL command saves a custom token:
+
+```
+EXEC BusinessCentral._saveOAuthTokens 'cronus', 'paste your OAuth 2.0 token here'
+```
 
