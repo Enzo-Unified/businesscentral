@@ -1,21 +1,21 @@
-# BusinessCentral Data Integration
+# Business Central Data Integration
 
-This repo provides an overview of Enzo Server integration capabilities with BusinessCentral (Microsoft 365) and sample SQL code to read and write data through the BusinessCentral API and ODataV4 endpoint (either provided by Microsoft or exposed by your AL logic). 
+This repo provides an overview of Enzo Server integration capabilities with Business Central (Microsoft 365) and sample SQL code to read and write data through the Business Central API and ODataV4 endpoint (either provided by Microsoft or exposed by your AL logic). 
 
 > NOTE: This project is under construction and should be considered in DRAFT mode. Feedback is welcome: info@enzounified.com 
 
 # Overview
-Enzo Server provides deep integration capabilities with BusinessCentral's APIs and OData endpoints to enable rapid Business Process Automation and data discovery use cases.  
+Enzo Server provides deep integration capabilities with Business Central's APIs and OData endpoints to enable rapid Business Process Automation and data discovery use cases.  
 
 ## About Enzo Server
-Enzo Server provides direct connectivity to BusinessCentral using native SQL commands to read/write data quickly. Using SQL commands allows integration teams to quickly build otherwise complex business process automation logic and enables data discovery scenarios. SQL Server Management Studio (SSMS) is the recommended tool to execute SQL commands against Enzo by either connecting directly to Enzo or using a Linked Server to Enzo. Since Enzo Server is a SQL Server emulator, you can connect to it directly. Enzo implements a subset of the T-SQL language necessary to access the API of the remote system; complex SQL operations (such as JOIN or GROUP BY) are not supported. 
+Enzo Server provides direct connectivity to Business Central using native SQL commands to read/write data quickly. Using SQL commands allows integration teams to quickly build otherwise complex business process automation logic and enables data discovery scenarios. SQL Server Management Studio (SSMS) is the recommended tool to execute SQL commands against Enzo by either connecting directly to Enzo or using a Linked Server to Enzo. Since Enzo Server is a SQL Server emulator, you can connect to it directly. Enzo implements a subset of the T-SQL language necessary to access the API of the remote system; complex SQL operations (such as JOIN or GROUP BY) are not supported. 
 
-Enzo Server works by installing __adapters__, which abstract access to specific endpoints; the BusinessCentral adapter is designed to expose the BC API and ODataV4 endpoints as SQL commands, and can be extended and/or customized to your needs and custom BC endpoints.  In addition, Enzo hides the low-level OAuth 2.0 authentication complexity, automatically generates and stores Bearer Tokens securely, and refreshes the Bearer Tokens as needed, automatically. You can also create your OAuth token separately.
+Enzo Server works by installing __adapters__, which abstract access to specific endpoints; the Business Central adapter is designed to expose the BC API and ODataV4 endpoints as SQL commands, and can be extended and/or customized to your needs and custom BC endpoints.  In addition, Enzo hides the low-level OAuth 2.0 authentication complexity, automatically generates and stores Bearer Tokens securely, and refreshes the Bearer Tokens as needed, automatically. You can also create your OAuth token separately.
 
 ## Direct vs. Linked Server Connections
 Enzo Server accepts connections from SSMS directly or through Linked Server. When creating integration scripts, such as jobs using the SQL Server Agent for example, or creating deep integrations within a database (as a Stored Procedure for example), connecting to Enzo through a Linked Server connection is necessary. Most operations can be performed either directly or through a Linked Server connection, but there are differences due to the way Linked Server works. 
 
-As a result, the following table outlines which operations are officially supported for the BusinessCentral adapter (note: in some cases, an unsupported operation may work, but it is not guaranteed to work in future releases):
+As a result, the following table outlines which operations are officially supported for the Business Central adapter (note: in some cases, an unsupported operation may work, but it is not guaranteed to work in future releases):
 
 | Operation | Direct | Linked Server |
 |---|---|---|
@@ -41,15 +41,15 @@ EXEC ENZO.BSC.BusinessCentral.help 0
 ## Pre-Requisites
 In order to run the sample code provided in this document, you will need to have an Enzo Server running on a Virtual Machine (Windows Server or Windows 10 or higher). You can quickly obtain a test Enzo Server Virtual Machine in AWS or Azure by using the __Enzo Server 3.1 Marketplace__ offer. For more information, please visit the [Enzo Download](https://www.enzounified.com/home/download) page on the [Enzo Unified](https://www.enzounified.com/) website. 
 
-## BusinessCentral Configuration
-Configuring Enzo to access BusinessCentral 365 requires the creation of an Azure Active Directory (AAD) Enterprise Application along with other important configuration steps in BusinessCentral administrative screens. In addition, Enzo needs to be configured to access BusinessCentral by creating a configuration setting. 
+## BusinessCentral Adapter Configuration
+Configuring Enzo to access Business Central 365 requires the creation of an Azure Active Directory (AAD) Enterprise Application along with other important configuration steps in Business Central administrative screens. In addition, Enzo needs to be configured to access Business Central by creating a configuration setting. 
 
 The necessary configuration steps are documented in the [BusinessCentralConfiguration.pdf](https://www.enzounified.com/downloads/BusinessCentralConfiguration.pdf) document on the [Enzo Unified](https://www.enzounified.com) website. 
 
 ## Enzo Server Configuration
 The document provided in the Configuration section provides the SQL command necessary to store the security settings in Enzo. 
 
-Enzo uses the following commands to create and update configuration settings respectivelly:
+Enzo uses the following commands to create and update configuration settings respectively:
 
 __\_configCreate__ and __\_configUpdate__
 
@@ -95,8 +95,8 @@ EXEC BSC.BusinessCentral._configCreate
 
 </details>
    
-# Reading from BusinessCentral
-All BusinessCentral API endpoints that allow you to read data are exposed through EXEC and SELECT commands. 
+# Reading from Business Central
+All Business Central API endpoints that allow you to read data are exposed through EXEC and SELECT commands. 
 
 To list all the available commands available, you can run the following SQL command on Enzo:
 
@@ -124,13 +124,13 @@ Here is a sample output of the first 10 records:
 
 </details>
    
-The above statement shows you that you can retrieve records from BusinessCentral using either an EXEC command using the __produce__ name, or a SELECT statement on the __tablename__ table.  Most __tablename__ tables allow the INSERT, UPDATE and DELETE operations but not all. 
+The above statement shows you that you can retrieve records from Business Central using either an EXEC command using the __produce__ name, or a SELECT statement on the __tablename__ table.  Most __tablename__ tables allow the INSERT, UPDATE and DELETE operations but not all. 
    
 ## Using EXEC commands
-You can fetch data from the BusinessCentral API using EXEC commands. 
+You can fetch data from the Business Central API using EXEC commands. 
 
 ```
--- retrieve all vendors from BusinessCentral
+-- retrieve all vendors from Business Central
 EXEC BusinessCentral.listVendors 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f'
 ```
 
@@ -143,13 +143,13 @@ EXEC BusinessCentral.listVendors help
 For example, the __top__ parameter allows you to return the first few records:
 
 ```
--- retrieve 10 vendors from BusinessCentral
+-- retrieve 10 vendors from Business Central
 EXEC BusinessCentral.listVendors 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f', 10
 ```
 
 You can also use the parameter name:
 ```
--- retrieve 10 vendors from BusinessCentral
+-- retrieve 10 vendors from Business Central
 EXEC BusinessCentral.listVendors @company_id='dc50d5e8-f9c9-ed11-94cc-000d3a220b2f', @top=10
 ```
 
@@ -159,7 +159,7 @@ EXEC ENZO.BSC.BusinessCentral.listVendors @company_id='dc50d5e8-f9c9-ed11-94cc-0
 ```
 
 ## Using SELECT commands
-Generally speaking, using SELECT commands is more flexible than using EXEC operators because you can apply client-side filters on the data, select the desired column names, and perform ORDER BY operations (the ORDER BY is applied client-side). The following SELECT command in SQL Server Management Studio returns all Vendors from BusinessCentral (replace company_id with your BusinessCentral Company ID):
+Generally speaking, using SELECT commands is more flexible than using EXEC operators because you can apply client-side filters on the data, select the desired column names, and perform ORDER BY operations (the ORDER BY is applied client-side). The following SELECT command in SQL Server Management Studio returns all Vendors from Business Central (replace company_id with your Business Central Company ID):
 
 ```
 SELECT * FROM BusinessCentral.Vendors WHERE company_id='dc50d5e8-f9c9-ed11-94cc-000d3a220b2f'
@@ -192,13 +192,13 @@ You can run the same command through a Linked Server connection to Enzo:
 SELECT * FROM ENZO.BSC.BusinessCentral.Vendors WHERE company_Id = 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f' AND displayName like '%n%'
 ```
 
-# Writing to BusinessCentral
+# Writing to Business Central
 You can perform inserts, updates, and delete operations using either an EXEC command or its equivalent INSERT, UPDATE or DELETE operation. 
 
 > WARNING: The INSERT, UPDATE and DELETE operations are only supported when connecting directly to ENZO; it is recommended to use the EXEC operations to change data when using a Linked Server connection. 
 
 ## Using EXEC commands
-EXEC operations come in two flavors for BusinessCentral: specifying individual parameters or by providing a raw JSON document. 
+EXEC operations come in two flavors for Business Central: specifying individual parameters or by providing a raw JSON document. 
 
 ### Using individual parameters
 For example, the PostVendor command takes 18 parameters, most of which are optional, such as the vendor __number__ and the __displayName__. To view the list of parameters available, run this command:
@@ -241,13 +241,13 @@ EXEC ENZO.BSC.BusinessCentral.PostVendorRAW 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2
 ```
 
 ## UPDATE Operations
-Most objects in BusinessCentral provide an HTTP PATCH (UPDATE) operation. The table name to use for the command is also provided as part of the help output. For example, the PatchVendor command's help output contains a __TableName__ column that would be used for the UPDATE operation. The table name is __vendor__. 
+Most objects in Business Central provide an HTTP PATCH (UPDATE) operation. The table name to use for the command is also provided as part of the help output. For example, the PatchVendor command's help output contains a __TableName__ column that would be used for the UPDATE operation. The table name is __vendor__. 
 
 ```
 EXEC BusinessCentral.PatchVendor help
 ```
 
-Updating data in BusinessCentral requires a valid __etag__ to avoid concurrency issues. The __etag__ value can be found by calling the vendor record. The following command returns the current __etag__ value for a given __vendor_id__:
+Updating data in Business Central requires a valid __etag__ to avoid concurrency issues. The __etag__ value can be found by calling the vendor record. The following command returns the current __etag__ value for a given __vendor_id__:
 
 ```
 SELECT [@odata.etag] FROM BusinessCentral.Vendor WHERE company_Id = 'dc50d5e8-f9c9-ed11-94cc-000d3a220b2f' AND vendor_id='625C8AFB-52F3-ED11-8848-000D3A373307'
@@ -267,7 +267,7 @@ WHERE
 > The UPDATE operation may not work as expected using a Linked Server connection; if you are writing SQL code through a Linked Server connection, use the corresponding EXEC operation instead.
 
 ## INSERT Operations
-Most objects in BusinessCentral provide an HTTP POST (INSERT) operation. The table name to use for the command is also provided as part of the help output. For example, the PatchVendor command's help output contains a __TableName__ column that would be used for the UPDATE operation. The table name is __vendor__. 
+Most objects in Business Central provide an HTTP POST (INSERT) operation. The table name to use for the command is also provided as part of the help output. For example, the PatchVendor command's help output contains a __TableName__ column that would be used for the UPDATE operation. The table name is __vendor__. 
 
 ```
 EXEC BusinessCentral.PatchVendor help
@@ -282,7 +282,7 @@ INSERT INTO BusinessCentral.Vendor (company_id, [number], displayName) VALUES ('
 > The INSERT operation may not work as expected using a Linked Server connection; if you are writing SQL code through a Linked Server connection, use the corresponding EXEC operation instead.
 
 ## DELETE Operations
-Most objects in BusinessCentral provide an HTTP DELETE (DELETE) operation. The table name to use for the command is also provided as part of the help output. For example, the PatchVendor command's help output contains a __TableName__ column that would be used for the UPDATE operation. The table name is __vendor__. 
+Most objects in Business Central provide an HTTP DELETE (DELETE) operation. The table name to use for the command is also provided as part of the help output. For example, the PatchVendor command's help output contains a __TableName__ column that would be used for the UPDATE operation. The table name is __vendor__. 
 
 ```
 EXEC BusinessCentral.PatchVendor help
@@ -318,7 +318,7 @@ The __\_rawHttpRequest__ operation takes an input JSON document that provides th
 * The __uri__ attribute is either the relative URI from the configuration or the full URI to the endpoint (ODataV4 requires the use of your Azure Tenant ID)
 * The __applyContentTx__ attribute is optional, and when set, transforms the HTTP Response into rows and columns automatically using the JSON Path provided
 
-When specifying a POST, PUT, or PATCH operation, the following addional attributes can be used:
+When specifying a POST, PUT, or PATCH operation, the following additional attributes can be used:
 
 * __httpPayload__: the body of the operation as a string 
 * __httpContentType__: the content type in the body
